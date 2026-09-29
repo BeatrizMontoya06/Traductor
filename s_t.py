@@ -1,5 +1,5 @@
 import streamlit as st
-from gTTS import gTTS
+from gtts import gTTS
 import base64
 import io
 
