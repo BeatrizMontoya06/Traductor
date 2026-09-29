@@ -19,7 +19,7 @@ st.title("TRADUCTOR.")
 st.subheader("Escucho lo que quieres traducir.")
 
 
-image = Image.open('traductor.jpeg')
+image = Image.open('OIG7.jpg')
 
 st.image(image,width=300)
 with st.sidebar:
@@ -35,9 +35,9 @@ stt_button = Button(label=" Escuchar  🎤", width=300,  height=50)
 
 stt_button.js_on_event("button_click", CustomJS(code="""
     var recognition = new webkitSpeechRecognition();
-    recognition.continuous = false;
+    recognition.continuous = false;  // Cambia a false
     recognition.interimResults = true;
-    recognition.lang = 'es-ES';
+    recognition.lang = 'es-ES';  // Puedes ajustar el idioma
  
     recognition.onresult = function (e) {
         var value = "";
@@ -79,7 +79,7 @@ if result:
     text = str(result.get("GET_TEXT"))
     in_lang = st.selectbox(
         "Selecciona el lenguaje de Entrada",
-        ("Inglés", "Español", "Bengali", "Coreano", "Mandarín", "Japonés", "Francés", "Alemán"),
+        ("Inglés", "Español", "Bengali", "Coreano", "Mandarín", "Japonés"),
     )
     if in_lang == "Inglés":
         input_language = "en"
@@ -93,14 +93,10 @@ if result:
         input_language = "zh-cn"
     elif in_lang == "Japonés":
         input_language = "ja"
-    elif in_lang == "Francés":
-        input_language = "fr"
-    elif in_lang == "Alemán":
-        input_language = "de"
     
     out_lang = st.selectbox(
         "Selecciona el lenguaje de salida",
-        ("Inglés", "Español", "Bengali", "Coreano", "Mandarín", "Japonés", "Francés", "Alemán"),
+        ("Inglés", "Español", "Bengali", "Coreano", "Mandarín", "Japonés"),
     )
     if out_lang == "Inglés":
         output_language = "en"
@@ -114,10 +110,6 @@ if result:
         output_language = "zh-cn"
     elif out_lang == "Japonés":
         output_language = "ja"
-    elif out_lang == "Francés":
-        output_language = "fr"
-    elif out_lang == "Alemán":
-        output_language = "de"
     
     english_accent = st.selectbox(
         "Selecciona el acento",
@@ -189,3 +181,15 @@ if result:
                     print("Deleted ", f)
 
     remove_files(7)
+           
+
+
+        
+    
+
+
+
+        
+    
+
+
