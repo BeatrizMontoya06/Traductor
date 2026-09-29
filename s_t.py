@@ -1,23 +1,15 @@
 import streamlit as st
-from gtts import gTTS
+from gTTS import gTTS
 import base64
 import io
 
 # Configuración de la página
 st.set_page_config(
-    page_title="Bee's Translator v1.0 - Retro Y2K",
+    page_title="Bee's Translator v2.0 - Retro Y2K",
     page_icon="🐝",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
-
-# Inicializar estados de la sesión
-if "input_text" not in st.session_state:
-    st.session_state.input_text = ""
-if "translated_text" not in st.session_state:
-    st.session_state.translated_text = ""
-if "audio_b64" not in st.session_state:
-    st.session_state.audio_b64 = None
 
 # Estilos Retro Y2K Globales
 st.markdown("""
@@ -104,7 +96,7 @@ y2k_header = """
 </head>
 <body>
     <div class="title-bar">
-        <span>🐝 C:\\BEES_TRANSLATOR\\v1.0\\VOICE_TRANSLATE.EXE</span>
+        <span>🐝 C:\\BEES_TRANSLATOR\\v2.0\\TRANSLATE.EXE</span>
         <div>
             <div class="win-btn">_</div>
             <div class="win-btn">□</div>
@@ -112,12 +104,12 @@ y2k_header = """
         </div>
     </div>
     <marquee scrollamount="5">
-        *** TRADUCTOR MULTILENGUAJE DE VOZ Y2K *** PRESIONA EL MICRÓFONO Y HABLA ***
+        *** TRADUCTOR MULTILENGUAJE Y2K *** ESCRIBE TU TEXTO, SELECCIONA EL IDIOMA Y ESCÚCHALO AL INSTANTE ***
     </marquee>
     <div class="retro-info">
-        <h2>ℹ TRADUCTOR POR VOZ (SYSTEM INFO)</h2>
+        <h2>ℹ INFORMACIÓN DEL SISTEMA</h2>
         <p style="font-size: 12px; margin: 2px 0;">
-            Presiona <b>"🎙️ ESCUCHAR MICRÓFONO"</b>, dale permisos a tu navegador y habla. El sistema detectará tu voz y la traducirá al idioma seleccionado.
+            Sistema de traducción y síntesis de voz en alta definición sin restricciones de hardware del navegador.
         </p>
     </div>
 </body>
@@ -125,88 +117,10 @@ y2k_header = """
 """
 st.components.v1.html(y2k_header, height=185)
 
-# Sección 1: Micrófono HTML5 en directo
-st.markdown("### 🎙️ 1. Reconocimiento de Voz")
-
-mic_component = """
-<!DOCTYPE html>
-<html>
-<head>
-<style>
-    .mic-box {
-        background: #e0e0e0;
-        border: 2px inset #ffffff;
-        padding: 10px;
-        text-align: center;
-        font-family: Tahoma, sans-serif;
-    }
-    .btn-mic {
-        background: #c0c0c0;
-        border: 2px solid;
-        border-color: #ffffff #808080 #808080 #ffffff;
-        padding: 8px 16px;
-        font-weight: bold;
-        font-size: 14px;
-        cursor: pointer;
-    }
-    .btn-mic:active {
-        border-color: #808080 #ffffff #ffffff #808080;
-    }
-    #status {
-        margin-top: 6px;
-        font-size: 12px;
-        color: #000080;
-        font-weight: bold;
-    }
-</style>
-</head>
-<body>
-    <div class="mic-box">
-        <button class="btn-mic" onclick="startDictation()">🎙️ PRESIONA PARA HABLAR (MICRÓFONO)</button>
-        <div id="status">Estado: Esperando comando de voz...</div>
-    </div>
-
-    <script>
-    function startDictation() {
-        if (window.hasOwnProperty('webkitSpeechRecognition') || window.hasOwnProperty('SpeechRecognition')) {
-            var recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-
-            recognition.continuous = false;
-            recognition.interimResults = false;
-            recognition.lang = "es-ES"; // Escucha en español
-
-            document.getElementById('status').innerText = "🔴 Escuchando... ¡Habla ahora!";
-            document.getElementById('status').style.color = "#ff0000";
-
-            recognition.start();
-
-            recognition.onresult = function(e) {
-                var textResult = e.results[0][0].transcript;
-                document.getElementById('status').innerText = "✅ Capturado: " + textResult;
-                document.getElementById('status').style.color = "#008000";
-                
-                // Copiar resultado al portapapeles para facilitar pegado rápido
-                navigator.clipboard.writeText(textResult);
-                alert("Voz capturada: '" + textResult + "'\\n\\n¡Pégalo en el recuadro de abajo (Ctrl + V)!");
-            };
-
-            recognition.onerror = function(e) {
-                document.getElementById('status').innerText = "❌ Error o permiso denegado.";
-                recognition.stop();
-            };
-        } else {
-            alert("Tu navegador no soporta el micrófono en vivo. Usa Google Chrome o Edge.");
-        }
-    }
-    </script>
-</body>
-</html>
-"""
-st.components.v1.html(mic_component, height=110)
-
-# Lista completa de idiomas para traducir
+# Diccionario de idiomas disponibles con sus códigos de configuración de voz
 LANGUAGES = {
-    "🇺🇸 Inglés": ("en", "com"),
+    "🇺🇸 Inglés (EE.UU.)": ("en", "com"),
+    "🇬🇧 Inglés (Reino Unido)": ("en", "co.uk"),
     "🇫🇷 Francés": ("fr", "fr"),
     "🇮🇹 Italiano": ("it", "it"),
     "🇩🇪 Alemán": ("de", "de"),
@@ -216,21 +130,21 @@ LANGUAGES = {
     "🇨🇳 Chino (Mandarín)": ("zh-CN", "com"),
     "🇰🇷 Coreano": ("ko", "co.kr"),
     "🇦🇪 Árabe": ("ar", "com"),
-    "🇪🇸 Español": ("es", "com.mx")
+    "🇪🇸 Español (Latinoamérica)": ("es", "com.mx"),
+    "🇪🇸 Español (España)": ("es", "es")
 }
 
-# Formulario de traducción
+# Formulario principal de traducción
 with st.form(key="translator_form"):
-    st.markdown("### 📝 2. Texto a Traducir (Escribe o Pega lo capturado del micrófono):")
+    st.markdown("### 📝 1. Ingresa el texto a traducir:")
     input_text = st.text_area(
-        label="Texto entrada",
-        value=st.session_state.input_text,
-        height=100,
-        placeholder="Escribe aquí o pega (Ctrl+V) la frase capturada con el micrófono...",
+        label="Texto de entrada",
+        height=120,
+        placeholder="Escribe aquí la frase que deseas traducir...",
         label_visibility="collapsed"
     )
 
-    st.markdown("### 🌍 3. Selecciona el Idioma Destino:")
+    st.markdown("### 🌍 2. Selecciona el Idioma Destino:")
     selected_lang = st.selectbox(
         "Idioma",
         options=list(LANGUAGES.keys()),
@@ -239,16 +153,16 @@ with st.form(key="translator_form"):
 
     translate_btn = st.form_submit_button("⚡ TRADUCIR Y REPRODUCIR AUDIO")
 
-# Traducción en backend
+# Procesamiento de la traducción y audio
 if translate_btn:
     if not input_text.strip():
-        st.warning("⚠️ Primero habla por el micrófono o escribe un texto para traducir.")
+        st.warning("⚠️ Debes escribir algún texto antes de traducir.")
     else:
-        with st.spinner("Traduciendo texto y generando audio..."):
+        with st.spinner("Traduciendo y generando audio..."):
             try:
                 lang_code, tld_code = LANGUAGES[selected_lang]
                 
-                # Proceso de síntesis de audio en el idioma traducido
+                # Generación del archivo de audio con gTTS
                 tts = gTTS(text=input_text, lang=lang_code, tld=tld_code, slow=False)
                 
                 fp = io.BytesIO()
@@ -257,37 +171,48 @@ if translate_btn:
                 
                 audio_bytes = fp.read()
                 b64 = base64.b64encode(audio_bytes).decode()
-                st.session_state.audio_b64 = b64
+
+                # Reproductor HTML5 con autoplay incrustado sin bloqueos de iframe
+                player_html = f"""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        .player-card {{
+                            background: #e0e0e0;
+                            border: 2px inset #ffffff;
+                            padding: 12px;
+                            text-align: center;
+                            font-family: Tahoma, sans-serif;
+                            margin-top: 10px;
+                        }}
+                        audio {{ width: 100%; margin-top: 8px; }}
+                        .status {{
+                            color: #008000; font-weight: bold; font-size: 13px;
+                            background: #000; padding: 4px; border: 1px inset #808080;
+                        }}
+                    </style>
+                </head>
+                <body>
+                    <div class="player-card">
+                        <div class="status">🔊 REPRODUCIENDO TRADUCCIÓN EN {selected_lang.upper()}...</div>
+                        <audio controls autoplay>
+                            <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+                            Tu navegador no soporta la reproducción de audio.
+                        </audio>
+                    </div>
+                </body>
+                </html>
+                """
+                st.components.v1.html(player_html, height=120)
+
+                # Botón opcional de descarga
+                st.download_button(
+                    label="💾 DESCARGAR TRADUCCIÓN (.MP3)",
+                    data=audio_bytes,
+                    file_name="traduccion_bees.mp3",
+                    mime="audio/mp3"
+                )
 
             except Exception as e:
-                st.error(f"Error procesando la traducción: {e}")
-
-# Reproductor en pantalla
-if st.session_state.audio_b64 is not None:
-    st.markdown("### 🔊 4. Audio de la Traducción:")
-    player_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            .player-card {{
-                background: #e0e0e0;
-                border: 2px inset #ffffff;
-                padding: 10px;
-                text-align: center;
-                font-family: Tahoma, sans-serif;
-            }}
-            audio {{ width: 100%; margin-top: 5px; }}
-        </style>
-    </head>
-    <body>
-        <div class="player-card">
-            <b style="color: #008000;">🔊 REPRODUCIENDO TRADUCCIÓN EN DIRECTO:</b>
-            <audio controls autoplay>
-                <source src="data:audio/mp3;base64,{st.session_state.audio_b64}" type="audio/mp3">
-            </audio>
-        </div>
-    </body>
-    </html>
-    """
-    st.components.v1.html(player_html, height=100)
+                st.error(f"Error al procesar la traducción: {e}")
